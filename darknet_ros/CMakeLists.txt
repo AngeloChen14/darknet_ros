@@ -59,6 +59,7 @@ find_package(catkin REQUIRED
     darknet_ros_msgs
     image_transport
     nodelet
+    vision_msgs
 )
 
 # Enable OPENCV in darknet
@@ -79,6 +80,7 @@ catkin_package(
     darknet_ros_msgs
     image_transport
     nodelet
+    vision_msgs
   DEPENDS
     Boost
 )

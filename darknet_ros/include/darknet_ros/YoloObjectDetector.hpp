@@ -25,6 +25,8 @@
 #include <sensor_msgs/Image.h>
 #include <sensor_msgs/image_encodings.h>
 #include <std_msgs/Header.h>
+#include <vision_msgs/Detection2DArray.h>
+
 
 // OpenCv
 #include <cv_bridge/cv_bridge.h>
@@ -149,6 +151,7 @@ class YoloObjectDetector {
   image_transport::Subscriber imageSubscriber_;
   ros::Publisher objectPublisher_;
   ros::Publisher boundingBoxesPublisher_;
+  ros::Publisher detectionArrayPublisher_;
 
   //! Detected objects.
   std::vector<std::vector<RosBox_> > rosBoxes_;

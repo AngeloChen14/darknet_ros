@@ -144,6 +144,8 @@ void YoloObjectDetector::init() {
       nodeHandle_.advertise<darknet_ros_msgs::ObjectCount>(objectDetectorTopicName, objectDetectorQueueSize, objectDetectorLatch);
   boundingBoxesPublisher_ =
       nodeHandle_.advertise<darknet_ros_msgs::BoundingBoxes>(boundingBoxesTopicName, boundingBoxesQueueSize, boundingBoxesLatch);
+  detectionArrayPublisher_ =
+      nodeHandle_.advertise<vision_msgs::Detection2DArray>("/detection", boundingBoxesQueueSize, boundingBoxesLatch);
   detectionImagePublisher_ =
       nodeHandle_.advertise<sensor_msgs::Image>(detectionImageTopicName, detectionImageQueueSize, detectionImageLatch);
 
@@ -549,10 +551,11 @@ void* YoloObjectDetector::publishInThread() {
     msg.count = num;
     objectPublisher_.publish(msg);
 
+    vision_msgs::Detection2DArray detec_msg;
     for (int i = 0; i < numClasses_; i++) {
       if (rosBoxCounter_[i] > 0) {
         darknet_ros_msgs::BoundingBox boundingBox;
-
+        vision_msgs::Detection2D detec;
         for (int j = 0; j < rosBoxCounter_[i]; j++) {
           int xmin = (rosBoxes_[i][j].x - rosBoxes_[i][j].w / 2) * frameWidth_;
           int ymin = (rosBoxes_[i][j].y - rosBoxes_[i][j].h / 2) * frameHeight_;
@@ -567,6 +570,9 @@ void* YoloObjectDetector::publishInThread() {
           boundingBox.xmax = xmax;
           boundingBox.ymax = ymax;
           boundingBoxesResults_.bounding_boxes.push_back(boundingBox);
+          detec.bbox.center.x = (int)(xmin+xmax)/2;
+          detec.bbox.center.y = (int)(ymin+ymax)/2;
+          detec_msg.detections.push_back(detec);
         }
       }
     }
@@ -574,6 +580,10 @@ void* YoloObjectDetector::publishInThread() {
     boundingBoxesResults_.header.frame_id = "detection";
     boundingBoxesResults_.image_header = headerBuff_[(buffIndex_ + 1) % 3];
     boundingBoxesPublisher_.publish(boundingBoxesResults_);
+    detec_msg.header.stamp = ros::Time::now();
+    detec_msg.header.frame_id = "detection";
+    detectionArrayPublisher_.publish(detec_msg);
+
   } else {
     darknet_ros_msgs::ObjectCount msg;
     msg.header.stamp = ros::Time::now();
