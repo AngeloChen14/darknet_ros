@@ -294,7 +294,8 @@ detection* YoloObjectDetector::avgPredictions(network* net, int* nboxes) {
 
 void* YoloObjectDetector::detectInThread() {
   running_ = 1;
-  float nms = .4;
+  // float nms = .4;
+  float nms = .3;
 
   layer l = net_->layers[net_->n - 1];
   float* X = buffLetter_[(buffIndex_ + 2) % 3].data;
@@ -588,7 +589,7 @@ void* YoloObjectDetector::publishInThread() {
     boundingBoxesResults_.header.frame_id = "detection";
     boundingBoxesResults_.image_header = headerBuff_[(buffIndex_ + 1) % 3];
     boundingBoxesPublisher_.publish(boundingBoxesResults_);
-    detec_msg.header.stamp = imageHeader_.stamp;
+    detec_msg.header.stamp = ros::Time::now();
     detec_msg.header.frame_id = imageHeader_.frame_id;
     detectionArrayPublisher_.publish(detec_msg);
 
