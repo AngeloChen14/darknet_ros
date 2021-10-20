@@ -572,8 +572,9 @@ void* YoloObjectDetector::publishInThread() {
           boundingBoxesResults_.bounding_boxes.push_back(boundingBox);
           vision_msgs::Detection2D detec;
           vision_msgs::ObjectHypothesisWithPose hyp;
-          detec.header.stamp = imageHeader_.stamp;
-          detec.header.frame_id = imageHeader_.frame_id;
+          // detec.header.stamp = imageHeader_.stamp;
+          // detec.header.frame_id = imageHeader_.frame_id;
+          detec.header =  headerBuff_[(buffIndex_ + 1) % 3];
           detec.bbox.center.x = (int)(xmin+xmax)/2;
           detec.bbox.center.y = (int)(ymin+ymax)/2;
           detec.bbox.size_x = (int)(xmax - xmin);
@@ -589,8 +590,9 @@ void* YoloObjectDetector::publishInThread() {
     boundingBoxesResults_.header.frame_id = "detection";
     boundingBoxesResults_.image_header = headerBuff_[(buffIndex_ + 1) % 3];
     boundingBoxesPublisher_.publish(boundingBoxesResults_);
-    detec_msg.header.stamp = ros::Time::now();
-    detec_msg.header.frame_id = imageHeader_.frame_id;
+    // detec_msg.header.stamp = imageHeader_.stamp;
+    // detec_msg.header.frame_id = imageHeader_.frame_id;
+    detec_msg.header = headerBuff_[(buffIndex_ + 1) % 3];
     detectionArrayPublisher_.publish(detec_msg);
 
   } else {
